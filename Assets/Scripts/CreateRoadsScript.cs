@@ -5,12 +5,11 @@ public class CreateRoadsScript : MonoBehaviour
 { 
     public GameObject roadSegment;
     private float segmentLength;
-    private List<GameObject> roads;
+    private List<GameObject> roads = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
-        roads = new List<GameObject>();
         segmentLength = roadSegment.GetComponent<Renderer>().bounds.size[0];
     }
 
@@ -25,20 +24,51 @@ public class CreateRoadsScript : MonoBehaviour
         roads = new List<GameObject>();
         GameObject[] houses = GameObject.FindGameObjectsWithTag("House");
 
-        if (houses.Length >= 2)
+        if (houses.Length > 1)
         {
-            ConnectHouses(houses[0].transform, houses[1].transform);
+            var housesToConnect = MinimumSpanningTree(houses);
+            foreach (var housePair in housesToConnect)
+            {
+                ConnectHouses(housePair.Item1, housePair.Item2);
+            }
         }
-
     }
 
-    // Finds the minimum spanning tree in the fully connected graph between nodes
-    void MinimumSpanningTree(GameObject[] nodes)
+    // Finds the minimum spanning tree in the fully connected graph between objs
+    HashSet<(Transform, Transform)> MinimumSpanningTree(GameObject[] objs)
     {
-        foreach (GameObject node in nodes)
+        Transform root = objs[0].transform;
+        var edgesToChooseFrom = new List<(Transform, Transform)>();
+        var edges = new HashSet<(Transform, Transform)>();
+        var edgeComparer = new EdgeComparer();
+
+        // Fill edgesToChooseFrom with edges from the root
+        for (int i = 1; i < objs.Length; ++i)
         {
-            Debug.Log("Hej");
+            Transform h = objs[i].transform;
+            edgesToChooseFrom.Add((h, root));
         }
+
+        // Iteratively choose smallest edge to expand tree
+        while (edgesToChooseFrom.Count > 0)
+        {
+            edgesToChooseFrom.Sort(edgeComparer);
+            var bestEdge = edgesToChooseFrom[0];
+            edges.Add(bestEdge);
+            edgesToChooseFrom.RemoveAt(0);
+
+            // Update edgesToChooseFrom
+            for (int i = 0; i < edgesToChooseFrom.Count; ++i)
+            {
+                var newEdge = (edgesToChooseFrom[i].Item1, bestEdge.Item1);
+                if (edgeComparer.Compare(newEdge, edgesToChooseFrom[i]) < 0)
+                {
+                    edgesToChooseFrom[i] = newEdge;
+                }
+            }
+        }
+
+        return edges;
     }
 
     // Connects two houses by roads
@@ -74,5 +104,13 @@ public class CreateRoadsScript : MonoBehaviour
         }
 
 
+    }
+
+    private class EdgeComparer : IComparer<(Transform, Transform)>
+    {
+        public int Compare((Transform, Transform) e1, (Transform, Transform) e2)
+        {
+            return Vector3.Distance(e1.Item1.position, e1.Item2.position).CompareTo(Vector3.Distance(e2.Item1.position, e2.Item2.position));
+        }
     }
 }
