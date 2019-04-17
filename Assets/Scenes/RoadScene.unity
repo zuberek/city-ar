@@ -476,6 +476,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roadSegment: {fileID: 7980438427740417878, guid: 75677c196e2f04f3bbffc63ec21f39f0,
     type: 3}
+  carPrefab: {fileID: 100008, guid: f33fcdf90e7034971b3e1a639b7b0355, type: 3}
 --- !u!4 &1909554477
 Transform:
   m_ObjectHideFlags: 0

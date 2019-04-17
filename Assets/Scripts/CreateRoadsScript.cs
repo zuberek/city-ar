@@ -150,10 +150,11 @@ public class CreateRoadsScript : MonoBehaviour
 
     private class Car
     {
-        public GameObject car;
         public GameObject destination;
         public GameObject source;
-        public float progress = 0.0F;
+        public GameObject car;
+        private float progress = 0.0F;
+        private float offsetY = 0.2F;
 
         public Car(GameObject carPrefab, GameObject destinationObj, GameObject sourceObj)
         {
@@ -162,7 +163,7 @@ public class CreateRoadsScript : MonoBehaviour
             Vector3 dir = destination.transform.position - source.transform.position;
             car = Instantiate(
                 carPrefab,
-                source.transform.position,
+                source.transform.position + offsetY * source.transform.up,
                 Quaternion.LookRotation(dir, source.transform.up));
         }
 
@@ -176,8 +177,8 @@ public class CreateRoadsScript : MonoBehaviour
             }
 
             Vector3 dir = destination.transform.position - source.transform.position;
-            car.transform.position = source.transform.position + dir * progress;
             car.transform.rotation = Quaternion.LookRotation(dir, source.transform.up);
+            car.transform.position = source.transform.position + dir * progress + offsetY * source.transform.up;
         }
 
         private void SwitchDirection()
