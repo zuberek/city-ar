@@ -68,6 +68,16 @@ public class CreateRoadsScript : MonoBehaviour
                 ConnectHouses(housePair.Item1.transform, housePair.Item2.transform);
             }
         }
+        else
+        {
+            // If there is any cars, destroy them
+            for (int i = cars.Count - 1; i >= 0; --i)
+            {
+                Car car = cars[i];
+                cars.Remove(car);
+                Destroy(car.car);
+            }
+        }
     }
 
     // Finds the minimum spanning tree in the fully connected graph between objs
@@ -154,7 +164,8 @@ public class CreateRoadsScript : MonoBehaviour
         public GameObject source;
         public GameObject car;
         private float progress = 0.0F;
-        private float offsetY = 0.2F;
+        private float offsetY = 0.8F;
+        private float size = 3.5F;
 
         public Car(GameObject carPrefab, GameObject destinationObj, GameObject sourceObj)
         {
@@ -165,6 +176,7 @@ public class CreateRoadsScript : MonoBehaviour
                 carPrefab,
                 source.transform.position + offsetY * source.transform.up,
                 Quaternion.LookRotation(dir, source.transform.up));
+            car.transform.localScale = new Vector3(size, size, size);
         }
 
         public void Step()
