@@ -68,6 +68,16 @@ public class CreateRoadsScript : MonoBehaviour
                 ConnectHouses(housePair.Item1.transform, housePair.Item2.transform);
             }
         }
+        else
+        {
+            // If there is any cars, destroy them
+            for (int i = cars.Count - 1; i >= 0; --i)
+            {
+                Car car = cars[i];
+                cars.Remove(car);
+                Destroy(car.car);
+            }
+        }
     }
 
     // Finds the minimum spanning tree in the fully connected graph between objs
@@ -150,10 +160,12 @@ public class CreateRoadsScript : MonoBehaviour
 
     private class Car
     {
-        public GameObject car;
         public GameObject destination;
         public GameObject source;
-        public float progress = 0.0F;
+        public GameObject car;
+        private float progress = 0.0F;
+        private float offsetY = 0.8F;
+        private float size = 3.5F;
 
         public Car(GameObject carPrefab, GameObject destinationObj, GameObject sourceObj)
         {
@@ -162,8 +174,9 @@ public class CreateRoadsScript : MonoBehaviour
             Vector3 dir = destination.transform.position - source.transform.position;
             car = Instantiate(
                 carPrefab,
-                source.transform.position,
+                source.transform.position + offsetY * source.transform.up,
                 Quaternion.LookRotation(dir, source.transform.up));
+            car.transform.localScale = new Vector3(size, size, size);
         }
 
         public void Step()
@@ -176,8 +189,8 @@ public class CreateRoadsScript : MonoBehaviour
             }
 
             Vector3 dir = destination.transform.position - source.transform.position;
-            car.transform.position = source.transform.position + dir * progress;
             car.transform.rotation = Quaternion.LookRotation(dir, source.transform.up);
+            car.transform.position = source.transform.position + dir * progress + offsetY * source.transform.up;
         }
 
         private void SwitchDirection()
