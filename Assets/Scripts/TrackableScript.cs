@@ -51,6 +51,7 @@ public class TrackableScript : MonoBehaviour, ITrackableEventHandler
             newStatus == TrackableBehaviour.Status.EXTENDED_TRACKED)
         {
             Debug.Log("Trackable " + mTrackableBehaviour.TrackableName + " found");
+            // TrackerManager.Instance.GetTracker<ObjectTracker>().Stop();
             OnTrackingFound();
         }
         else if (previousStatus == TrackableBehaviour.Status.TRACKED &&
@@ -78,11 +79,26 @@ public class TrackableScript : MonoBehaviour, ITrackableEventHandler
         var colliderComponents = GetComponentsInChildren<Collider>(true);
         var canvasComponents = GetComponentsInChildren<Canvas>(true);
 
+        GameObject[] houses = GameObject.FindGameObjectsWithTag("House");
+
         // Enable rendering:
         foreach (var component in rendererComponents)
         {
-            component.enabled = true;
-            component.tag = "House";
+            bool isValid = true;
+            foreach (var house in houses)
+            {
+                Vector3 dir = component.transform.position - house.transform.position;
+                Debug.Log("Trackable distance: " + dir.magnitude);
+                if(dir.magnitude < 20) {
+                    isValid = false;
+                    Debug.Log("Trackable not valid: " + mTrackableBehaviour.TrackableName);
+                }
+            }
+
+            if(isValid){
+                component.enabled = true;
+                component.tag = "House";
+            }
         }
 
         // Enable colliders:
